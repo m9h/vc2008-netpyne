@@ -10,14 +10,13 @@ The paper contains both models; the GENESIS network is reproduced in NetPyNE els
 and the authors validated the simplified model against it. That makes this a legitimate differentiable
 substrate rather than a new approximation.
 
-## Headline: the model can reproduce the mouse BF-PV phase-response — but this is a consistency
-## demonstration, not a prediction
+## Headline: the model *can reproduce* the mouse BF-PV phase-response (a consistency demonstration)
 
 **Read the "How strong is this claim" section below before citing this.** An earlier version of this
 document called the match a "held-out causal prediction." That was an over-claim and is retracted.
 
 Continuous PRC, 26 phases across one 40 Hz cycle, `g_opto = 1.0`, control (τ_inh = 8 ms).
-Baseline (no opto) = 9474. **Nothing is fitted to the mouse dataset.**
+Baseline (no opto) = 9474. Nothing is *fitted* to the mouse dataset, but see the claim-strength section below.
 
 | phase (ms) | deg | P40 / baseline | |
 |---|---|---|---|
@@ -32,12 +31,13 @@ Baseline (no opto) = 9474. **Nothing is fitted to the mouse dataset.**
 
 Reported effect in the mouse study: *"Advanced and in-phase stimulation enhanced frontal ASSRs, while
 delayed and out-of-phase stimulation reduced them."* The model gives **enhancement in-phase (1.11×)
-and suppression at the delayed phases (0.84×, 0.74×)** — the same pattern, from a circuit that has
-never seen those data. Full swing best/worst = **1.82×**.
+and suppression at the delayed phases (0.84×, 0.74×)** — the same pattern. Full swing best/worst =
+**1.82×**. No mouse data was used to fit anything, but two free parameters were selected (below), so
+this is agreement in a chosen regime rather than a prediction.
 
-Notably the **NetPyNE/HH version of this same circuit did *not* reproduce the alignment**
-(see `MURINE_PRC.md`: it peaked at 270°). The theta model does. That the paper's own two models
-disagree here is itself a finding worth flagging.
+The **NetPyNE/HH version of this same circuit gives the opposite alignment** (`MURINE_PRC.md`:
+peak at 270°). Both are implementations of the paper's own two models. See the Type I/II section —
+that disagreement is the more interesting result.
 
 ## How strong is this claim, precisely
 
