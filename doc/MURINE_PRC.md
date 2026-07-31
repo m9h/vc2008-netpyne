@@ -5,6 +5,27 @@ optogenetics dataset ([*Sci Data* 2020, s41597-020-00621-z](https://www.nature.c
 **Nothing here is fitted to that dataset** — the model is simply run with an extra phase-shifted
 drive onto its interneuron populations and asked what happens to the 40 Hz ASSR.
 
+## ⚠️ What this is, and what it is not
+
+**This is not a mouse model of schizophrenia, and it is not a test of schizophrenia.**
+
+- The mouse dataset used here contains **six healthy B6 PV-Cre mice**. There are no patient-analogue
+  animals, no disease manipulation, and no clinical phenotype. The study is mechanistic: how does
+  BF-PV stimulation modulate cortical ASSR.
+- The purpose of this variant is **model validation** — testing whether the VC2008 circuit reproduces
+  the *experimentally observed* dependence of the ASSR on PV-stimulation phase. That validates the
+  circuit's causal structure (inhibition timing → entrainment) against a causal manipulation.
+- The `condition=schizophrenia` arm below applies the **human-derived** VC2008 disease
+  parameterization (extended chandelier IPSC decay, motivated by GAT-1/GAD67 reductions in *human*
+  post-mortem tissue) to the mouse-adjusted circuit. Its result — that optimally-timed PV drive
+  restores 40 Hz power — is therefore a **model prediction that has not been tested against any
+  schizophrenia data, murine or human**. It is reported as a prediction, not a finding.
+
+To make this an actual schizophrenia test you would need a mouse line with an SZ-relevant
+inhibitory phenotype and its own ASSR recordings — e.g. NMDAR ablation in PV interneurons, ErbB4
+mutants, 22q11.2 deletion (Df(16)A+/−), or acute NMDA-antagonist models, all of which have
+documented gamma/ASSR deficits. None of those are used here.
+
 ## The experiment being modeled
 
 - Dataset 2 of the mouse study: 40 Hz click-train ASSR **plus** 1 ms optogenetic pulses driving
