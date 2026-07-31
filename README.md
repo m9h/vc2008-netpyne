@@ -34,29 +34,46 @@ VC_CONDITION=schizophrenia VC_DRIVE=40 python src/init.py
 Each run writes `output/<label>.npz` with `t`, `meg`, `freqs`, `power`, spike times and full
 parameter provenance.
 
-## Reproduced findings
+## Reproduction status
 
-Single trial per cell of the 2 × 3 design (spectral power of the modeled MEG signal):
+Grand average of the paper's full design — **10 subjects × 10 trials × 3 drives × 2 conditions
+(600 simulations, 600/600 completed)**, averaged in time before the frequency transform per METHODS
+(`python src/batch.py`). Spectral power of the modeled MEG signal:
 
 | condition | drive | P(20 Hz) | P(30 Hz) | P(40 Hz) |
 |---|---|---|---|---|
-| control | 20 Hz | 59.7 | 0.4 | 10.4 |
-| control | 30 Hz | 0.2 | 113.5 | 0.8 |
-| control | **40 Hz** | 0.01 | 0.2 | **93.6** |
-| schizophrenia | 20 Hz | **101.9** | 0.4 | 12.6 |
-| schizophrenia | 30 Hz | 0.01 | 83.4 | 0.1 |
-| schizophrenia | **40 Hz** | 0.3 | 0.7 | **8.5** |
+| control | 20 Hz | 59.6 | 0.0 | 6.1 |
+| control | 30 Hz | 0.0 | **113.6** | 0.0 |
+| control | **40 Hz** | 0.0 | 0.0 | **83.9** |
+| schizophrenia | 20 Hz | **93.6** | 0.0 | 9.7 |
+| schizophrenia | 30 Hz | 0.0 | **97.1** | 0.0 |
+| schizophrenia | **40 Hz** | 0.0 | 0.0 | **8.7** |
 
-Matching the paper (and the MEG data it models):
-- **Control entrains strongly at 40 Hz** to 40 Hz drive.
-- **Schizophrenia shows an ~11× reduction in 40 Hz power** — the model's central claim
-  ("less power at 40 Hz in SZ compared with NC").
-- **Schizophrenia shows increased 20 Hz power** to 20 Hz drive (59.7 → 101.9).
-- **Both configurations entrain at 30 Hz**, roughly equivalently.
-- A 40 Hz component is present in the control response to 20 Hz drive.
+### Reproduced ✓
 
-Still to add for the full mixed-mode 20/40 Hz result: per-cell IPSC-decay jitter and the
-10-subject × 10-trial grand average (see `DEVIATIONS.md` §5).
+- **Control entrains strongly at 40 Hz** to 40 Hz drive (P40 = 83.9, no competing components).
+- **Schizophrenia reduces 40 Hz power ~9.7×** (83.9 → 8.7) — the model's central claim and the
+  MEG finding it explains ("less power at 40 Hz in SZ compared with NC", *P* < 0.001).
+- **Schizophrenia increases the 20 Hz response** to 20 Hz drive (59.6 → 93.6), matching the
+  reported increase in SZ 20 Hz power.
+- **Both configurations entrain at 30 Hz** with comparable power (113.6 vs 97.1), matching the
+  paper's equivalent 30 Hz response across cohorts.
+- A 40 Hz component is present in the response to 20 Hz drive.
+
+### Not reproduced ✗ (open)
+
+- **The mixed-mode 20 Hz component under 40 Hz drive in the schizophrenia configuration.** The
+  paper reports that extended chandelier IPSCs make the network *skip* drive pulses, producing a
+  20 Hz peak alongside a reduced 40 Hz peak. Here the 40 Hz response is strongly suppressed as
+  reported, but **no 20 Hz peak emerges** (P20 ≈ 0).
+- **Relatedly**, under 20 Hz drive the 40 Hz component is larger in the schizophrenia network
+  (9.7) than in control (6.1); the paper reports the opposite ordering.
+
+Both open items concern the *emergence of a subharmonic*, which depends on the balance between
+drive strength and inhibitory recovery. The most likely cause is the `synScale` calibration
+(§3 of `DEVIATIONS.md`): a uniform scale factor makes the periodic drive strong enough that
+pyramidal cells fire on essentially every pulse, so pulse-skipping never occurs. Calibrating drive
+and recurrent weights separately — rather than with one shared factor — is the obvious next step.
 
 ## Honest reproduction notes
 
