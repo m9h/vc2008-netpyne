@@ -93,6 +93,16 @@ degraded by PV stimulation, whereas in the impaired (schizophrenia) circuit opti
 stimulation **restores 40 Hz power to 1.40× baseline**. Full results and caveats:
 **[doc/MURINE_PRC.md](doc/MURINE_PRC.md)**.
 
+## Differentiable model (`jaxmodel/`)
+
+The paper's **own simplified theta-neuron network** (20 E + 10 I) in JAX/Diffrax — continuous, so
+differentiable end-to-end with no surrogate gradients. As a **held-out prediction** it reproduces the
+mouse BF-PV phase-response (in-phase enhances 1.11×, delayed suppresses to 0.74×) that the HH version
+did *not*, and it locates the true optimum (3.0 ms) and trough (15.0 ms) **between** the four phases
+the experiment sampled. A 2-D (phase × τ_inh) landscape takes 4.3 s via `vmap`.
+Details, gradient-derived experimental-design results, and limitations:
+**[doc/JAX_GRADIENTS.md](doc/JAX_GRADIENTS.md)**.
+
 ## Honest reproduction notes
 
 The published description is not sufficient, as printed, to produce a spiking network. Three
