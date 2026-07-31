@@ -82,6 +82,17 @@ this: raising inhibition suppresses control entrainment (P40 79.6 → 0.9) befor
 subharmonic, so the shared-`synScale` hypothesis for the gap is ruled out. The residual difference
 most likely lies in the drive's targeting/kinetics rather than in overall synaptic gain.
 
+## Murine variant: optogenetic PV phase-response
+
+`VC_SPECIES=mouse` + a phase-shifted optogenetic drive onto the interneuron populations models the
+mouse BF-PV ASSR experiment ([*Sci Data* 2020](https://www.nature.com/articles/s41597-020-00621-z)).
+Run `python src/prc.py`. As a **held-out causal prediction** (nothing fitted to that dataset) the
+circuit reproduces **robust phase-dependent modulation** of the 40 Hz ASSR, but **not** the reported
+phase alignment. It also predicts a **ceiling effect**: the saturated control network can only be
+degraded by PV stimulation, whereas in the impaired (schizophrenia) circuit optimally-timed
+stimulation **restores 40 Hz power to 1.40× baseline**. Full results and caveats:
+**[doc/MURINE_PRC.md](doc/MURINE_PRC.md)**.
+
 ## Honest reproduction notes
 
 The published description is not sufficient, as printed, to produce a spiking network. Three

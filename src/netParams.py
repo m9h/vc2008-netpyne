@@ -154,6 +154,22 @@ for _pop in ("BASK", "CHAND"):
             int(0.65 * (cfg.nBask if _pop == "BASK" else cfg.nChand))))},
         "weight": G_DRIVE, "synMech": "AMPA", "sec": "dend", "loc": 0.5, "delay": cfg.synDelay}
 
+# ---------------------------------------------------------------- optogenetic BF-PV drive
+# 1 ms LED pulses at the click frequency, phase-shifted by cfg.optoPhaseMs relative to the sound
+# drive, delivered onto the cortical interneuron populations (BF-PV targets cortical FS cells).
+if cfg.optoEnabled:
+    netParams.synMechParams["GABA_OPTO"] = {"mod": "Exp2Syn", "tau1": cfg.tau1Inh,
+                                            "tau2": cfg.optoTau2, "e": -82.0}
+    _opto_mech = "GABA_OPTO" if cfg.optoSign == "inhibitory" else "AMPA"
+    _opto_w = (G_INH if cfg.optoSign == "inhibitory" else G_EXC) * cfg.optoWeightScale
+    netParams.stimSourceParams["opto"] = {
+        "type": "NetStim", "rate": cfg.driveRate, "noise": 0.0,
+        "start": cfg.driveStart + cfg.optoPhaseMs, "number": cfg.driveNumber}
+    for _pop in ("BASK", "CHAND"):
+        netParams.stimTargetParams[f"opto->{_pop}"] = {
+            "source": "opto", "conds": {"pop": _pop}, "weight": _opto_w,
+            "synMech": _opto_mech, "sec": "dend", "loc": 0.5, "delay": cfg.synDelay}
+
 # stronger first pulse (2x g_max), delivered as a single extra co-timed input
 netParams.stimSourceParams["drive_first"] = {
     "type": "NetStim", "rate": cfg.driveRate, "noise": 0.0,

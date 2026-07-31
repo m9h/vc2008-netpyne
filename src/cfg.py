@@ -65,6 +65,27 @@ cfg.tau2BaskJitter = 5.0
 cfg.tau2ChandJitter = 5.0 if cfg.condition == "control" else 15.0
 cfg.synDelay = 1.0       # ms
 
+# ---------------------------------------------------------- murine variant + optogenetic PV drive
+# Models Yamamoto/Kim-style BF-PV optogenetics (Sci Data 2020, s41597-020-00621-z): 1 ms LED pulses
+# at the click-train frequency, delivered at a controlled PHASE DELAY relative to sound onset
+# (0 / 6.25 / 12.5 / 18.75 ms = 0/90/180/270 deg of the 25 ms 40 Hz cycle).
+# Basal-forebrain PV neurons are GABAergic and preferentially target cortical fast-spiking
+# interneurons -> modeled as an INHIBITORY input onto BASK+CHAND (a disinhibition motif).
+# `optoSign=excitatory` is provided to test the alternative hypothesis.
+cfg.species = os.environ.get("VC_SPECIES", "human")            # human | mouse
+cfg.optoEnabled = os.environ.get("VC_OPTO", "0") == "1"
+cfg.optoPhaseMs = float(os.environ.get("VC_OPTO_PHASE", 0.0))  # delay re: sound pulse
+cfg.optoSign = os.environ.get("VC_OPTO_SIGN", "inhibitory")    # inhibitory | excitatory
+cfg.optoWeightScale = float(os.environ.get("VC_OPTO_W", 1.0))
+cfg.optoTau2 = float(os.environ.get("VC_OPTO_TAU2", 5.0))      # ms, BF-PV GABA_A decay
+if cfg.species == "mouse":
+    # faster cortical PV->pyramidal GABA_A kinetics in mouse; full thermal (q10) rescaling of the
+    # HH rates is NOT yet applied -- see DEVIATIONS.md.
+    cfg.tau2Bask = float(os.environ.get("VC_TAU2B", 5.0))
+    cfg.tau2Chand = float(os.environ.get("VC_TAU2CH", 5.0 if cfg.condition == "control" else 16.0))
+    cfg.tau2BaskJitter = 3.0
+    cfg.tau2ChandJitter = 3.0 if cfg.condition == "control" else 9.0
+
 # ------------------------------------------------- inputs (METHODS)
 cfg.bkgRate = 4.0                       # Hz Poisson EPSCs onto every pyramidal cell
 cfg.driveStart = 100.0                  # ms
@@ -78,7 +99,10 @@ cfg.recordStep = cfg.dt
 cfg.recordCells = [("PYR", 0), ("BASK", 0), ("CHAND", 0)]
 cfg.recordLFP = None
 
-cfg.simLabel = f"vc2008_{cfg.condition}_{int(cfg.driveRate)}Hz_s{cfg.subject}_t{cfg.trial}"
+_opto_tag = (f"_opto{cfg.optoPhaseMs:g}{cfg.optoSign[:3]}" if cfg.optoEnabled else "")
+_sp_tag = "" if cfg.species == "human" else f"_{cfg.species}"
+cfg.simLabel = (f"vc2008{_sp_tag}_{cfg.condition}_{int(cfg.driveRate)}Hz"
+                f"_s{cfg.subject}_t{cfg.trial}{_opto_tag}")
 cfg.saveFolder = os.environ.get("VC_OUT", "output")
 cfg.savePickle = False
 cfg.saveJson = False

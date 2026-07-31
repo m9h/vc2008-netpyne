@@ -135,6 +135,7 @@ def main():
     out = os.path.join(cfg.saveFolder, f"{cfg.simLabel}.npz")
     prov = {k: getattr(cfg, k) for k in
             ("condition", "driveRate", "subject", "trial", "duration", "dt", "nPyr", "nBask",
+             "species", "optoEnabled", "optoPhaseMs", "optoSign", "optoWeightScale", "optoTau2",
              "nChand", "gnabar", "gkbar", "an_scale", "tau2Exc", "tau2Bask", "tau2Chand",
              "gmaxExc", "gmaxInh", "bkgRate")}
     np.savez_compressed(out, t=t, meg=meg, freqs=freqs, power=spec,
