@@ -48,8 +48,14 @@ cfg.gmaxInh = 40e-6 * cfg.synScale    # uS  (40 pS x scale)  g_max,b = g_max,ch
 cfg.tau1Exc = 0.5        # ms  rise (see DEVIATIONS.md: table prints rise = decay = 3 ms)
 cfg.tau2Exc = 3.0        # ms  decay, AMPA
 cfg.tau1Inh = 0.5        # ms  rise
-cfg.tau2Bask = 8.0       # ms  tau2,b  (8 +/- 5 ms, mean)
+cfg.tau2Bask = 8.0       # ms  tau2,b  mean (8 +/- 5 ms, uniform)
 cfg.tau2Chand = 8.0 if cfg.condition == "control" else 25.0   # tau2,ch: 8 (control) | 25 (schiz)
+# Per-cell IPSC decay jitter, drawn uniformly (METHODS): tau2,b = 8 +/- 5 ms in both conditions;
+# tau2,ch = 8 +/- 5 ms (control) | 25 +/- 15 ms (schizophrenia). Each inhibitory cell carries its
+# own decay time, so the synapses it makes inherit it.
+cfg.useJitter = os.environ.get("VC_JITTER", "1") == "1"
+cfg.tau2BaskJitter = 5.0
+cfg.tau2ChandJitter = 5.0 if cfg.condition == "control" else 15.0
 cfg.synDelay = 1.0       # ms
 
 # ------------------------------------------------- inputs (METHODS)

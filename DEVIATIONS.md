@@ -66,17 +66,22 @@ in METHODS, `(e^{−t/τ1} − e^{−t/τ2})/(τ1 − τ2)`, is undefined when `
 paper's decay constants, which are the parameters the paper's mechanism actually depends on
 (`τ2,exc = 3`, `τ2,b = 8`, `τ2,ch = 8 control / 25 schizophrenia`).
 
-## 5. Not yet implemented (roadmap, not silent omissions)
+## 5. Implementation notes
 
-- **Per-cell decay jitter.** The paper draws IPSC decays from uniform distributions
-  (`τ2,b = 8 ± 5 ms`; `τ2,ch = 8 ± 5` control / `25 ± 15` schizophrenia). Current code uses the
-  distribution *means*. Jitter is needed to fully reproduce the mixed-mode 20/40 Hz response.
-- **Simulated subjects/trials.** The paper averages 10 "subjects" (fixed random connectivity) × 10
-  trials (distinct noise). `cfg.subject` / `cfg.trial` seed this; the grand-average pipeline is in
-  `src/batch.py`.
+- **Per-cell decay jitter — implemented.** IPSC decays are drawn per interneuron from the paper's
+  uniform distributions (`τ2,b = 8 ± 5 ms`; `τ2,ch = 8 ± 5` control / `25 ± 15` schizophrenia) and
+  applied to the *instantiated* synapses after `connectCells()` (`apply_decay_jitter` in
+  `src/init.py`). NetPyNE creates one synapse per NetCon, so every synapse inherits the decay time
+  of its presynaptic cell — exactly the paper's semantics. Disable with `VC_JITTER=0`.
+  (NetPyNE's `cellList` in `preConds` silently matches nothing, so per-cell *declarative* rules are
+  not usable; the post-construction route is both exact and keeps `netParams.py` readable.)
+- **Simulated subjects/trials — implemented.** `src/batch.py` runs 10 subjects (fixed random
+  connectivity, seeded by `cfg.subject`) × 10 trials (distinct background noise) × 3 drives × 2
+  conditions, then grand-averages the MEG **in time** before the frequency transform, per METHODS.
 - **Dendritic active conductances.** The paper does not state whether dendrites carry HH channels;
   `dendActiveFrac = 0.1` (10% of somatic density) is assumed.
-- **The simplified theta-neuron model** (20 E + 10 I, MATLAB in the original) is not ported.
+- **The simplified theta-neuron model** (20 E + 10 I, MATLAB in the original) is not ported — this
+  repository implements the GENESIS network model only.
 
 ## Reproduction status
 

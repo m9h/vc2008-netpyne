@@ -70,9 +70,23 @@ netParams.popParams["CHAND"] = {"cellType": "CHAND", "numCells": cfg.nChand}  # 
 netParams.synMechParams["AMPA"] = {"mod": "Exp2Syn", "tau1": cfg.tau1Exc,
                                    "tau2": cfg.tau2Exc, "e": 45.0}
 netParams.synMechParams["GABA_B"] = {"mod": "Exp2Syn", "tau1": cfg.tau1Inh,
-                                     "tau2": cfg.tau2Bask, "e": -82.0}   # basket
+                                     "tau2": cfg.tau2Bask, "e": -82.0}   # basket (mean)
 netParams.synMechParams["GABA_CH"] = {"mod": "Exp2Syn", "tau1": cfg.tau1Inh,
-                                      "tau2": cfg.tau2Chand, "e": -82.0}  # chandelier
+                                      "tau2": cfg.tau2Chand, "e": -82.0}  # chandelier (mean)
+
+# Per-cell decay jitter: each inhibitory cell gets its own tau2 drawn uniformly, and every synapse
+# it makes uses that value (METHODS). Realized as one synMech + one connectivity rule per
+# presynaptic inhibitory cell. Seeded by "subject" so a simulated patient has a fixed network.
+import numpy as _np  # noqa: E402
+
+_rng = _np.random.RandomState(7000 + cfg.subject)
+TAU2_BASK = (_rng.uniform(cfg.tau2Bask - cfg.tau2BaskJitter, cfg.tau2Bask + cfg.tau2BaskJitter,
+                          cfg.nBask) if cfg.useJitter
+             else _np.full(cfg.nBask, cfg.tau2Bask))
+TAU2_CHAND = (_rng.uniform(cfg.tau2Chand - cfg.tau2ChandJitter, cfg.tau2Chand + cfg.tau2ChandJitter,
+                           cfg.nChand) if cfg.useJitter
+              else _np.full(cfg.nChand, cfg.tau2Chand))
+
 
 G_EXC = cfg.gmaxExc   # uS (80 pS)
 G_INH = cfg.gmaxInh   # uS (40 pS)
@@ -95,28 +109,25 @@ netParams.connParams["PYR->CHAND"] = {
     "preConds": {"pop": "PYR"}, "postConds": {"pop": "CHAND"},
     "probability": 0.10, "weight": G_EXC, "synMech": "AMPA", "sec": "dend", "loc": 0.5, **_C}
 
-# Basket cells project to 80% of all other basket cells and 80% of all chandelier cells
-netParams.connParams["BASK->BASK"] = {
-    "preConds": {"pop": "BASK"}, "postConds": {"pop": "BASK"},
-    "probability": 0.80, "weight": G_INH, "synMech": "GABA_B", "sec": "dend", "loc": 0.5, **_C}
-netParams.connParams["BASK->CHAND"] = {
-    "preConds": {"pop": "BASK"}, "postConds": {"pop": "CHAND"},
-    "probability": 0.80, "weight": G_INH, "synMech": "GABA_B", "sec": "dend", "loc": 0.5, **_C}
+# Inhibitory projections. With jitter enabled these are emitted per presynaptic cell so that each
+# interneuron's own tau2 is carried by every synapse it makes; otherwise one rule per population.
+#   basket -> 80% of other basket, 80% of chandelier
+#   basket -> 10% of PYR, "equally to somata and dendrites of a given cell"
+#   chandelier -> 10% of PYR, "only to the soma/AIS compartment"
+_BASK_TARGETS = [("BASK", 0.80, "dend", G_INH), ("CHAND", 0.80, "dend", G_INH),
+                 ("PYR", 0.10, "soma", G_INH / 2.0), ("PYR", 0.10, "dend", G_INH / 2.0)]
 
-# "Each PC receives projections from 10% of all basket cells. Basket cells send projections
-#  equally to somata and dendrites of a given cell."
-netParams.connParams["BASK->PYR_soma"] = {
-    "preConds": {"pop": "BASK"}, "postConds": {"pop": "PYR"},
-    "probability": 0.10, "weight": G_INH / 2.0, "synMech": "GABA_B", "sec": "soma", "loc": 0.5, **_C}
-netParams.connParams["BASK->PYR_dend"] = {
-    "preConds": {"pop": "BASK"}, "postConds": {"pop": "PYR"},
-    "probability": 0.10, "weight": G_INH / 2.0, "synMech": "GABA_B", "sec": "dend", "loc": 0.5, **_C}
-
-# "Each PC receives projections from 10% of chandelier cells. Chandelier cells project only to
-#  the soma/AIS compartment of modeled pyramidal cells."
+for _post, _p, _sec, _w in _BASK_TARGETS:
+    netParams.connParams[f"BASK->{_post}_{_sec}"] = {
+        "preConds": {"pop": "BASK"}, "postConds": {"pop": _post},
+        "probability": _p, "weight": _w, "synMech": "GABA_B", "sec": _sec, "loc": 0.5, **_C}
 netParams.connParams["CHAND->PYR"] = {
     "preConds": {"pop": "CHAND"}, "postConds": {"pop": "PYR"},
     "probability": 0.10, "weight": G_INH, "synMech": "GABA_CH", "sec": "soma", "loc": 0.5, **_C}
+# NOTE: per-cell decay jitter is applied to the *instantiated* synapses after connectCells()
+# (see apply_decay_jitter in src/init.py) using TAU2_BASK / TAU2_CHAND above. NetPyNE creates one
+# synapse per NetCon (cfg.oneSynPerNetcon), so each connection's decay can be set from the identity
+# of its presynaptic interneuron -- which is exactly the paper's per-cell distribution.
 
 # ---------------------------------------------------------------- background noise (METHODS)
 # "all pyramidal cells receiving a Poisson train of EPSCs at an average rate of 4 Hz"
