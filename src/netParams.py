@@ -88,8 +88,9 @@ TAU2_CHAND = (_rng.uniform(cfg.tau2Chand - cfg.tau2ChandJitter, cfg.tau2Chand + 
               else _np.full(cfg.nChand, cfg.tau2Chand))
 
 
-G_EXC = cfg.gmaxExc   # uS (80 pS)
-G_INH = cfg.gmaxInh   # uS (40 pS)
+G_EXC = cfg.gmaxExc     # uS recurrent excitation
+G_DRIVE = cfg.gmaxDrive # uS periodic drive (separately scalable)
+G_INH = cfg.gmaxInh     # uS inhibition (separately scalable)
 
 # ---------------------------------------------------------------- connectivity (METHODS p.2659)
 # "All synaptic connections are made from the soma/AIS compartment of the presynaptic cell onto
@@ -145,18 +146,18 @@ netParams.stimSourceParams["drive"] = {
     "start": cfg.driveStart, "number": cfg.driveNumber}
 
 netParams.stimTargetParams["drive->PYR"] = {
-    "source": "drive", "conds": {"pop": "PYR"}, "weight": G_EXC, "synMech": "AMPA",
+    "source": "drive", "conds": {"pop": "PYR"}, "weight": G_DRIVE, "synMech": "AMPA",
     "sec": "dend", "loc": 0.5, "delay": cfg.synDelay}
 for _pop in ("BASK", "CHAND"):
     netParams.stimTargetParams[f"drive->{_pop}"] = {
         "source": "drive", "conds": {"pop": _pop, "cellList": list(range(
             int(0.65 * (cfg.nBask if _pop == "BASK" else cfg.nChand))))},
-        "weight": G_EXC, "synMech": "AMPA", "sec": "dend", "loc": 0.5, "delay": cfg.synDelay}
+        "weight": G_DRIVE, "synMech": "AMPA", "sec": "dend", "loc": 0.5, "delay": cfg.synDelay}
 
 # stronger first pulse (2x g_max), delivered as a single extra co-timed input
 netParams.stimSourceParams["drive_first"] = {
     "type": "NetStim", "rate": cfg.driveRate, "noise": 0.0,
     "start": cfg.driveStart, "number": 1}
 netParams.stimTargetParams["drive_first->PYR"] = {
-    "source": "drive_first", "conds": {"pop": "PYR"}, "weight": G_EXC, "synMech": "AMPA",
+    "source": "drive_first", "conds": {"pop": "PYR"}, "weight": G_DRIVE, "synMech": "AMPA",
     "sec": "dend", "loc": 0.5, "delay": cfg.synDelay}

@@ -43,8 +43,15 @@ cfg.dendActiveFrac = float(os.environ.get("VC_DEND_ACTIVE", 0.1))  # dendritic H
 # resting cell" (and its 29 Hz spontaneous rate). A single scale factor on all synaptic weights is
 # calibrated to that stated behaviour; see DEVIATIONS.md and src/calibrate.py.
 cfg.synScale = float(os.environ.get("VC_SYNSCALE", 12.0))
-cfg.gmaxExc = 80e-6 * cfg.synScale    # uS  (80 pS x scale)  g_max,exc = g_max,d
-cfg.gmaxInh = 40e-6 * cfg.synScale    # uS  (40 pS x scale)  g_max,b = g_max,ch
+# The paper's subharmonic mechanism requires inhibition to *gate* the periodic drive: "inhibition
+# decays sufficiently between pulses to permit all E cells to respond to every drive input" (control)
+# vs. failing to decay in the schizophrenia case, so cells skip pulses -> 20 Hz. A single shared
+# scale cannot express that balance, so drive and inhibition carry their own factors.
+cfg.driveScale = float(os.environ.get("VC_DRIVESCALE", 1.0))
+cfg.inhScale = float(os.environ.get("VC_INHSCALE", 1.0))
+cfg.gmaxExc = 80e-6 * cfg.synScale                      # uS  recurrent excitation (g_max,exc)
+cfg.gmaxDrive = 80e-6 * cfg.synScale * cfg.driveScale   # uS  periodic drive (g_max,d)
+cfg.gmaxInh = 40e-6 * cfg.synScale * cfg.inhScale       # uS  g_max,b = g_max,ch
 cfg.tau1Exc = 0.5        # ms  rise (see DEVIATIONS.md: table prints rise = decay = 3 ms)
 cfg.tau2Exc = 3.0        # ms  decay, AMPA
 cfg.tau1Inh = 0.5        # ms  rise

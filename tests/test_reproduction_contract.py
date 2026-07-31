@@ -91,3 +91,26 @@ def test_provenance_recorded():
     prov = json.loads(str(z["provenance"]))
     for k in ("condition", "driveRate", "tau2Chand", "an_scale", "gnabar", "gkbar"):
         assert k in prov, f"missing provenance field {k}"
+
+
+def test_subharmonic_emerges_in_total_power():
+    """The mixed-mode 20 Hz component appears in SZ under 40 Hz drive.
+
+    It is not phase-locked across trials, so it is only visible in trial-averaged TOTAL power,
+    not in the time-domain grand average (see README). Uses the per-run spectra directly.
+    """
+    import glob as _g
+    c = sorted(_g.glob(str(OUT / "vc2008_control_40Hz_*.npz")))
+    s = sorted(_g.glob(str(OUT / "vc2008_schizophrenia_40Hz_*.npz")))
+    if not c or not s:
+        pytest.skip("need control and schizophrenia 40 Hz runs")
+
+    def total_p20(files):
+        vals = []
+        for f in files:
+            z = np.load(f, allow_pickle=True)
+            vals.append(_band(z, 20))
+        return float(np.mean(vals))
+
+    cp, sp = total_p20(c), total_p20(s)
+    assert sp > 3 * cp, f"expected enhanced 20 Hz subharmonic in SZ (control {cp:.3f} vs SZ {sp:.3f})"

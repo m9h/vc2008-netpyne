@@ -28,6 +28,12 @@ model cell (`mod/hhvc.mod`, 0.05 nA for 200 ms):
 No choice of the other parameters rescues the printed value; the cell cannot spike. **Default:
 `an_scale = 0.01`.** Set `VC_AN_SCALE=0.1` to reproduce the printed (non-spiking) behaviour.
 
+**The paper's own model unambiguously spiked**, so the printed equation cannot be what was
+simulated: METHODS reports that pyramidal cells "fire at an average rate of 29 Hz" without drive and
+that "the EPSCs are strong enough to trigger firing in a resting cell"; RESULTS refers to spike
+raster plots and to inhibition "permit[ting] all E cells to respond to every drive input". This is
+therefore a transcription error in the publication, not a property of the model.
+
 ## 2. Maximal channel conductances — Table 1 units are ambiguous; calibrated to the stated V_rest
 
 **Printed (Table 1):** `ḡ_Na = 80 pS`, `ḡ_K = 40 pS`.
@@ -83,8 +89,19 @@ paper's decay constants, which are the parameters the paper's mechanism actually
 - **The simplified theta-neuron model** (20 E + 10 I, MATLAB in the original) is not ported — this
   repository implements the GENESIS network model only.
 
+## 6. Evoked vs total power — the subharmonic is not phase-locked
+
+METHODS specifies the grand average be taken **in time** across subjects/trials before the frequency
+transform. The schizophrenia 20 Hz component arises from pyramidal cells *skipping* drive pulses, and
+which pulse is skipped varies across trials, so that component has no fixed phase relative to
+stimulus onset and **cancels entirely** in a time-domain average. `src/batch.py` therefore reports
+both the EVOKED (time-averaged, per METHODS) and TOTAL (trial-averaged power) spectra; the
+subharmonic appears only in the latter (13× control). See README for the full table.
+
 ## Reproduction status
 
-With the calibration above, a single trial per condition reproduces the paper's central qualitative
-results (see README "Reproduced findings"), including the **11× reduction in 40 Hz power** in the
-schizophrenia configuration — the model's headline claim.
+The full 600-simulation design reproduces the paper's central results — including the **9.7×
+reduction in 40 Hz power** and the **13× enhanced 20 Hz subharmonic** in the schizophrenia
+configuration. The one remaining quantitative gap is the *relative magnitude* of the SZ 20 Hz peak
+(comparable to the 40 Hz peak in the paper's Fig. 3; still smaller here). A drive × inhibition scan
+ruled out overall synaptic gain as the cause.
