@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+title: "NetPyNE re-implementation of Vierling-Claassen et al. (2008) auditory entrainment model"
+message: "If you use this re-implementation, please cite the original paper (below) and this repository."
+authors:
+  - family-names: Hough
+    given-names: Morgan
+license: MIT
+repository-code: "https://github.com/m9h/vc2008-netpyne"
+references:
+  - type: article
+    title: "Modeling GABA alterations in schizophrenia: a link between impaired inhibition and altered gamma and beta range auditory entrainment"
+    authors:
+      - family-names: Vierling-Claassen
+        given-names: Dorea
+      - family-names: Siekmeier
+        given-names: Peter
+      - family-names: Stufflebeam
+        given-names: Steven
+      - family-names: Kopell
+        given-names: Nancy
+    journal: "Journal of Neurophysiology"
+    volume: 99
+    issue: 5
+    start: 2656
+    end: 2671
+    year: 2008
+    doi: 10.1152/jn.00870.2007
