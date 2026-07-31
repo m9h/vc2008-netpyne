@@ -10,7 +10,11 @@ The paper contains both models; the GENESIS network is reproduced in NetPyNE els
 and the authors validated the simplified model against it. That makes this a legitimate differentiable
 substrate rather than a new approximation.
 
-## Headline: the mouse BF-PV phase-response is reproduced as a held-out prediction
+## Headline: the model can reproduce the mouse BF-PV phase-response — but this is a consistency
+## demonstration, not a prediction
+
+**Read the "How strong is this claim" section below before citing this.** An earlier version of this
+document called the match a "held-out causal prediction." That was an over-claim and is retracted.
 
 Continuous PRC, 26 phases across one 40 Hz cycle, `g_opto = 1.0`, control (τ_inh = 8 ms).
 Baseline (no opto) = 9474. **Nothing is fitted to the mouse dataset.**
@@ -34,6 +38,43 @@ never seen those data. Full swing best/worst = **1.82×**.
 Notably the **NetPyNE/HH version of this same circuit did *not* reproduce the alignment**
 (see `MURINE_PRC.md`: it peaked at 270°). The theta model does. That the paper's own two models
 disagree here is itself a finding worth flagging.
+
+## How strong is this claim, precisely
+
+**Robust and genuinely unfitted:** the circuit produces *phase-dependent* ASSR modulation — the
+effect of an identical PV input depends on when in the drive cycle it arrives. This held in both
+models and at every parameter setting tried, with nothing fitted to the mouse data.
+
+**Contingent, and therefore NOT a prediction:** the specific alignment (enhancement in-phase,
+suppression delayed). Obtaining it required (i) calibrating `g_ie` to 0.08 because the published
+value is ambiguous, (ii) sweeping `g_opto` and selecting 1.0 after weaker values produced almost no
+effect, and (iii) reporting the theta model, which matched, while the NetPyNE/HH implementation of
+the *same* circuit did not (`MURINE_PRC.md`). Model selection and parameter selection both entered.
+
+Accurate summary: **the model can reproduce the observed pattern in a plausible parameter regime;
+it does not uniquely predict it.**
+
+## The HH/theta disagreement is informative, not embarrassing
+
+The two implementations of this paper's own circuit give *opposite* phase alignments. That is
+expected once stated properly: **theta neurons are Type I excitable** (SNIC bifurcation, strictly
+positive phase-response curve) while **Hodgkin-Huxley is Type II** (Hopf bifurcation, biphasic PRC).
+A network's phase-response to timed inhibition inherits the single-neuron PRC type.
+
+So the sign of the mouse experiment's phase effect is informative about **excitability class in
+auditory cortex**, not only about inhibition — and the two models here bracket the two classes.
+That is a sharper and more falsifiable use of the dataset than asking whether "the circuit
+reproduces the effect."
+
+## Untested alternative for the optogenetic target
+
+BF-PV is GABAergic and targets cortical fast-spiking interneurons, so it is modeled as inhibition
+onto the interneuron population (disinhibition of pyramidal cells). The `opto_sign=excitatory`
+switch is **not** a meaningful alternative hypothesis — an excitatory synapse from a GABAergic
+projection neuron is wrong on its face. The alternative that matters and has **not** been run is
+**inhibition onto the pyramidal population** (direct inhibition rather than disinhibition), which
+could plausibly flip the phase alignment. Equal targeting of basket and chandelier cells is also an
+untested assumption.
 
 ## What differentiability actually bought
 

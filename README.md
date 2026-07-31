@@ -96,10 +96,13 @@ stimulation **restores 40 Hz power to 1.40× baseline**. Full results and caveat
 ## Differentiable model (`jaxmodel/`)
 
 The paper's **own simplified theta-neuron network** (20 E + 10 I) in JAX/Diffrax — continuous, so
-differentiable end-to-end with no surrogate gradients. As a **held-out prediction** it reproduces the
-mouse BF-PV phase-response (in-phase enhances 1.11×, delayed suppresses to 0.74×) that the HH version
-did *not*, and it locates the true optimum (3.0 ms) and trough (15.0 ms) **between** the four phases
-the experiment sampled. A 2-D (phase × τ_inh) landscape takes 4.3 s via `vmap`.
+differentiable end-to-end with no surrogate gradients. It **can reproduce** the mouse BF-PV
+phase-response (in-phase enhances 1.11×, delayed suppresses to 0.74×) in a plausible parameter
+regime — a consistency demonstration, **not** a prediction (parameter and model selection both
+entered; see the doc). The HH implementation of the same circuit gives the *opposite* alignment,
+which is itself informative: theta is Type I excitable, HH is Type II, and the network PRC inherits
+that. It also locates the optimum (3.0 ms) and trough (15.0 ms) **between** the four phases the
+experiment sampled. A 2-D (phase × τ_inh) landscape takes 4.3 s via `vmap`.
 Details, gradient-derived experimental-design results, and limitations:
 **[doc/JAX_GRADIENTS.md](doc/JAX_GRADIENTS.md)**.
 
