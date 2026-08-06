@@ -77,10 +77,28 @@ paper's Fig. 3 the SZ 20 Hz and 40 Hz peaks are of *comparable* magnitude, where
 subharmonic is present and strongly enhanced but still smaller than the residual 40 Hz peak
 (0.40 vs 8.9).
 
-A scan of drive strength × inhibitory strength (`VC_DRIVESCALE` × `VC_INHSCALE`) did **not** improve
-this: raising inhibition suppresses control entrainment (P40 79.6 → 0.9) before it produces a
-subharmonic, so the shared-`synScale` hypothesis for the gap is ruled out. The residual difference
-most likely lies in the drive's targeting/kinetics rather than in overall synaptic gain.
+**Two mechanistic hypotheses for this gap have been tested and both are refuted:**
+
+1. *Global synaptic gain* (`VC_DRIVESCALE` × `VC_INHSCALE`): raising inhibition suppresses control
+   entrainment (P40 79.6 → 0.9) before any subharmonic appears.
+2. *Chandelier-specific gain* (`VC_CHANDSCALE`) — the better hypothesis, since the paper's mechanism
+   is chandelier-specific (axo-axonic, AIS-targeting) and those synapses sit electrotonically closest
+   to spike initiation. It fails too, and in the wrong direction:
+
+   | `chandScale` | control P40 | SZ P40 | SZ P20/P40 |
+   |---|---|---|---|
+   | 1× | **79.6** | 10.8 | 0.050 |
+   | 2× | 27.6 | 19.0 | 0.035 |
+   | 4× | 5.0 | 31.2 | **0.021** |
+
+   Control entrainment collapses, SZ 40 Hz *rises*, the subharmonic ratio *falls*, and by 4× the
+   control/SZ contrast has inverted. Chandelier gain is not the missing ingredient.
+
+Since two targeted hypotheses have been ruled out, further blind parameter scanning is not
+productive. The remaining candidates are structural rather than gain-based — most plausibly a
+**separate AIS compartment** (chandelier synapses currently land on a soma that also carries the
+somatic HH conductances, so their veto of spike initiation may be under-represented) or the drive's
+synaptic kinetics. Both are model changes, not parameter changes, and are left open.
 
 ## Murine variant: optogenetic PV phase-response
 

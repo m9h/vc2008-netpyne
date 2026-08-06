@@ -49,9 +49,15 @@ cfg.synScale = float(os.environ.get("VC_SYNSCALE", 12.0))
 # scale cannot express that balance, so drive and inhibition carry their own factors.
 cfg.driveScale = float(os.environ.get("VC_DRIVESCALE", 1.0))
 cfg.inhScale = float(os.environ.get("VC_INHSCALE", 1.0))
+# Chandelier-SPECIFIC scaling. The paper's mechanism is chandelier-specific (axo-axonic, AIS-
+# targeting, GAT-1 loss), and chandelier synapses sit electrotonically much closer to spike
+# initiation than the dendritic drive. An earlier scan that raised ALL inhibition destroyed
+# control entrainment before producing a subharmonic; this knob tests the specific pathway.
+cfg.chandScale = float(os.environ.get("VC_CHANDSCALE", 1.0))
 cfg.gmaxExc = 80e-6 * cfg.synScale                      # uS  recurrent excitation (g_max,exc)
 cfg.gmaxDrive = 80e-6 * cfg.synScale * cfg.driveScale   # uS  periodic drive (g_max,d)
-cfg.gmaxInh = 40e-6 * cfg.synScale * cfg.inhScale       # uS  g_max,b = g_max,ch
+cfg.gmaxInh = 40e-6 * cfg.synScale * cfg.inhScale       # uS  g_max,b (basket)
+cfg.gmaxChand = 40e-6 * cfg.synScale * cfg.inhScale * cfg.chandScale   # uS  g_max,ch
 cfg.tau1Exc = 0.5        # ms  rise (see DEVIATIONS.md: table prints rise = decay = 3 ms)
 cfg.tau2Exc = 3.0        # ms  decay, AMPA
 cfg.tau1Inh = 0.5        # ms  rise

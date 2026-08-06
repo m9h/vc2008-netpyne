@@ -90,7 +90,8 @@ TAU2_CHAND = (_rng.uniform(cfg.tau2Chand - cfg.tau2ChandJitter, cfg.tau2Chand + 
 
 G_EXC = cfg.gmaxExc     # uS recurrent excitation
 G_DRIVE = cfg.gmaxDrive # uS periodic drive (separately scalable)
-G_INH = cfg.gmaxInh     # uS inhibition (separately scalable)
+G_INH = cfg.gmaxInh     # uS basket inhibition
+G_CHAND = cfg.gmaxChand # uS chandelier inhibition (separately scalable)
 
 # ---------------------------------------------------------------- connectivity (METHODS p.2659)
 # "All synaptic connections are made from the soma/AIS compartment of the presynaptic cell onto
@@ -124,7 +125,7 @@ for _post, _p, _sec, _w in _BASK_TARGETS:
         "probability": _p, "weight": _w, "synMech": "GABA_B", "sec": _sec, "loc": 0.5, **_C}
 netParams.connParams["CHAND->PYR"] = {
     "preConds": {"pop": "CHAND"}, "postConds": {"pop": "PYR"},
-    "probability": 0.10, "weight": G_INH, "synMech": "GABA_CH", "sec": "soma", "loc": 0.5, **_C}
+    "probability": 0.10, "weight": G_CHAND, "synMech": "GABA_CH", "sec": "soma", "loc": 0.5, **_C}
 # NOTE: per-cell decay jitter is applied to the *instantiated* synapses after connectCells()
 # (see apply_decay_jitter in src/init.py) using TAU2_BASK / TAU2_CHAND above. NetPyNE creates one
 # synapse per NetCon (cfg.oneSynPerNetcon), so each connection's decay can be set from the identity
